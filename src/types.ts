@@ -1,51 +1,84 @@
-/**
- * 类型定义文件
- * 定义插件内部使用的接口和类型
- *
- * 注意：OneBot 相关类型（OB11Message, OB11PostSendMsg 等）
- * 以及插件框架类型（NapCatPluginContext, PluginModule 等）
- * 均来自 napcat-types 包，无需在此重复定义。
- */
+export type MessageType = 'text' | 'image' | 'voice' | 'video' | 'file' | 'face' | 'other';
+export type ChatType = 'group' | 'private';
 
-// ==================== 插件配置 ====================
+export interface FeatureFlags {
+    keyword: boolean;
+    heatmap: boolean;
+    burst: boolean;
+    silent: boolean;
+    typeStats: boolean;
+    userContent: boolean;
+}
 
-/**
- * 插件主配置接口
- * 在此定义你的插件所需的所有配置项
- */
-export interface PluginConfig {
-    /** 全局开关：是否启用插件功能 */
+export interface KeywordConfig {
+    minWordLength: number;
+    defaultLimit: number;
+    stopWords: string[];
+}
+
+export interface SchedulerConfig {
     enabled: boolean;
-    /** 调试模式：启用后输出详细日志 */
-    debug: boolean;
-    /** 触发命令前缀，默认为 #cmd */
-    commandPrefix: string;
-    /** 同一命令请求冷却时间（秒），0 表示不限制 */
-    cooldownSeconds: number;
-    /** 按群的单独配置 */
-    groupConfigs: Record<string, GroupConfig>;
-    // TODO: 在这里添加你的插件配置项
+    retryOnce: boolean;
+    scanIntervalSeconds: number;
 }
 
-/**
- * 群配置
- */
+export interface BurstConfig {
+    windowMinutes: number;
+    lookbackDays: number;
+    sigma: number;
+    minMessages: number;
+}
+
+export interface SilentConfig {
+    recentHours: number;
+    baselineDays: number;
+    quantile: number;
+}
+
 export interface GroupConfig {
-    /** 是否启用此群的功能 */
     enabled?: boolean;
-    // TODO: 在这里添加群级别的配置项
 }
 
-// ==================== API 响应 ====================
+export interface PluginConfig {
+    enabled: boolean;
+    debug: boolean;
+    commandPrefix: string;
+    timezoneOffsetMinutes: number;
+    collectPrivateMessages: boolean;
+    collectGroupFiles: boolean;
+    storeMessageContent: boolean;
+    statPeriodDays: number;
+    featureFlags: FeatureFlags;
+    keyword: KeywordConfig;
+    scheduler: SchedulerConfig;
+    burst: BurstConfig;
+    silent: SilentConfig;
+    groupConfigs: Record<string, GroupConfig>;
+}
 
-/**
- * 统一 API 响应格式
- */
 export interface ApiResponse<T = unknown> {
-    /** 状态码，0 表示成功，-1 表示失败 */
     code: number;
-    /** 错误信息（仅错误时返回） */
     message?: string;
-    /** 响应数据（仅成功时返回） */
     data?: T;
+}
+
+export interface MessageRecord {
+    messageId: string;
+    groupId: string | null;
+    userId: string | null;
+    chatType: ChatType;
+    messageType: MessageType;
+    eventTime: number;
+    contentText: string;
+    rawMessage: string;
+}
+
+export interface GroupSchedule {
+    id?: number;
+    groupId: string;
+    hour: number;
+    minute: number;
+    feature: string;
+    enabled: boolean;
+    lastRunAt?: number | null;
 }
