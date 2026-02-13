@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.mjs",
   "description": "NapCat 群聊统计插件，支持消息采集、排行榜、热力图与定时推送",
-  "author": "wangc",
+  "author": "草莓",
   "license": "MIT",
   "keywords": [
     "napcat",
